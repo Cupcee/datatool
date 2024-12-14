@@ -1,8 +1,8 @@
 use crate::utils::{cleanup_test_dir, create_test_wav, setup_test_dir};
 use anyhow::Result;
 use hound::WavReader;
-use rush::commands::audio;
-use rush::AudioResampleArgs;
+use datatool::commands::audio;
+use datatool::AudioResampleArgs;
 use std::fs;
 
 #[test]

@@ -197,6 +197,28 @@ pub struct TableToCsvArgs {
     pub output: String,
 }
 
+#[derive(Debug, Args)]
+pub struct PointcloudSummaryArgs {
+    /// Input file or directory
+    pub input: String,
+
+    /// If provided, recursively process directories
+    #[clap(long)]
+    pub recursive: bool,
+}
+
+#[derive(Debug, Args)]
+pub struct PointcloudConvertArgs {
+    /// Input pointcloud file (e.g. .las, .laz, .pcd)
+    pub input: String,
+    /// Output pointcloud file (e.g. .las, .pcd)
+    pub output: String,
+
+    /// Optional output format hint (not needed if output extension is known)
+    #[clap(long)]
+    pub format: Option<String>,
+}
+
 // Error handling utility that can be used by both lib and binary
 pub fn handle_error(e: anyhow::Error) {
     eprintln!("Error!");

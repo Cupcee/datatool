@@ -1,7 +1,7 @@
 use crate::utils::{cleanup_test_dir, create_test_video, setup_test_dir};
 use anyhow::Result;
-use rush::commands::video;
-use rush::VideoSummaryArgs;
+use datatool::commands::video;
+use datatool::VideoSummaryArgs;
 use std::fs;
 
 #[test]

@@ -1,7 +1,7 @@
 use crate::utils::{cleanup_test_dir, setup_test_dir};
 use anyhow::Result;
-use rush::commands::file;
-use rush::CountArgs;
+use datatool::commands::file;
+use datatool::CountArgs;
 use std::fs;
 
 #[test]

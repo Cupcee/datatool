@@ -1,7 +1,7 @@
 use crate::utils::{cleanup_test_dir, create_test_table, setup_test_dir};
 use anyhow::Result;
-use rush::commands::table;
-use rush::TableToParquetArgs;
+use datatool::commands::table;
+use datatool::TableToParquetArgs;
 use std::fs;
 use std::path::Path;
 

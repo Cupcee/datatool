@@ -1,7 +1,7 @@
 use crate::utils::{cleanup_test_dir, create_test_wav, setup_test_dir};
 use anyhow::Result;
-use rush::commands::audio;
-use rush::AudioSummaryArgs;
+use datatool::commands::audio;
+use datatool::AudioSummaryArgs;
 
 #[test]
 fn test_audio_summary_directory_success() -> Result<()> {

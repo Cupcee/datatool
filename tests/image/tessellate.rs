@@ -1,7 +1,7 @@
 use crate::utils::{cleanup_test_dir, create_test_image, setup_test_dir};
 use anyhow::Result;
-use rush::commands::image;
-use rush::ImageTessellateArgs;
+use datatool::commands::image;
+use datatool::ImageTessellateArgs;
 use std::fs;
 
 #[test]

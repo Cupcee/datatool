@@ -1,10 +1,10 @@
 [package]
-name = "rush"
+name = "datatool"
 version = "0.9.0"
 edition = "2021"
-repository = "https://github.com/giacomopiccinini/rush"
+repository = "https://github.com/cupcee/datatool"
 rust-version = "1.81"
-authors = ["Giacomo Piccinini <giacomo.piccinini@proton.me>"]
+authors = ["Giacomo Piccinini <giacomo.piccinini@proton.me>", "Samuel Piirainen <samuel.piirainen@gmail.com>"]
 description = "Swiss-army knife for data inspection and manipulation"
 license = "MIT"
 
@@ -20,6 +20,10 @@ rayon = "1.10.0"
 rubato = "0.16.0"
 walkdir = "2.4.0"
 hashbrown = "0.15.1"
+pasture-io = "0.5.0"
+pasture-core = "0.5.0"
+pcd-rs = { version = "0.12.0", features = ["derive"] }
+bytemuck = "1.20.0"
 
 [dev-dependencies]
 uuid = { version = "1.0", features = ["v4"] }

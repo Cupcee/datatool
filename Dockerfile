@@ -18,4 +18,4 @@ COPY Cargo.lock .
 RUN cargo build --release
 
 # Run the application
-ENTRYPOINT ["./target/release/rush"]
+ENTRYPOINT ["./target/release/datatool"]

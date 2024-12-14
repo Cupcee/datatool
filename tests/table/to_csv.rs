@@ -1,7 +1,7 @@
 use crate::utils::{cleanup_test_dir, create_test_table, setup_test_dir};
 use anyhow::Result;
-use rush::commands::table;
-use rush::TableToCsvArgs;
+use datatool::commands::table;
+use datatool::TableToCsvArgs;
 use std::fs;
 use std::path::Path;
 

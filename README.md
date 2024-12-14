@@ -1,12 +1,12 @@
-# rush
+# datatool
 
 A Swiss-army knife CLI tool for data inspection and manipulation, written in Rust.
 
-![](https://github.com/giacomopiccinini/rush/blob/main/assets/rush.gif)
+![](https://github.com/giacomopiccinini/datatool/blob/main/assets/datatool.gif)
 
 ## Table of Contents
 - [Overview](#overview)
-  - [Why rush?](#why-rush?)
+  - [Why datatool?](#why-datatool?)
   - [Typical Workflow](#typical-workflow)
 - [Installation](#installation)
 - [Command Categories](#command-categories)
@@ -18,34 +18,34 @@ A Swiss-army knife CLI tool for data inspection and manipulation, written in Rus
 
 ## Overview
 
-`rush` is a command-line utility that provides various tools for working with multimedia files and data tables. It's designed to be fast and efficient, leveraging parallel processing where possible. It is capable of handling images, videos, audios, tabular files and (to some extent) "generic" files and directories. Restrictions might apply on admissible file formats.
+`datatool` is a command-line utility that provides various tools for working with multimedia files and data tables. It's designed to be fast and efficient, leveraging parallel processing where possible. It is capable of handling images, videos, audios, tabular files and (to some extent) "generic" files and directories. Restrictions might apply on admissible file formats.
 
-### Why rush?
+### Why datatool?
 
 As a Machine Learning/Data Engineer, I frequently work with diverse datasets comprising audio files, images, and videos for model training. Common questions that arise include *"What is the total number of images in the dataset?"*, *"What is the combined duration of all videos?"*, and *"Are the audio files consistent in their sample rates?"*.
 
-Rush aims to:
+datatool aims to:
 1. Provide comprehensive summaries of file contents and their properties
 2. Enable common file manipulations to ensure dataset consistency
 
 ### Typical Workflow
 
-Rush exposes a consistent syntax across modalities following the pattern```bash
-rush <MEDIA> <COMMAND> <OPTIONS>```
+datatool exposes a consistent syntax across modalities following the pattern```bash
+datatool <MEDIA> <COMMAND> <OPTIONS>```
 To summarise the imagery in a directory (with all subdirectories included) run
 ```bash
-rush image summary photos/
+datatool image summary photos/
 
 # Total files: 156
 # Unique (height, width) pairs: {(1080, 1920), (800, 600), (3024, 4032)}
 ```
 Let's then reshape all of them to a common height-width and store them elsewhere
 ```bash
-rush image resize photos/ 1080 1920 reshaped-photos/
+datatool image resize photos/ 1080 1920 reshaped-photos/
 ```
 and let's check again the summary
 ```bash
-rush image summary reshaped-photos/
+datatool image summary reshaped-photos/
 
 # Total files: 156
 # Unique (height, width) pairs: {(1080, 1920)}
@@ -62,11 +62,11 @@ sudo apt update && apt install -y ffmpeg libavformat-dev libavutil-dev libavcode
 If the standard cargo installation fails, please consider using the provided Dockerfile. To build that run
 
 ```bash
-docker build --tag rush .
+docker build --tag datatool .
 ```
-Notice, however, that since rush is meant to interact with directories and files on your computer, these are not available straight away to a Docker container running rush. Hence, make sure to mount them before running a command, for instance
+Notice, however, that since datatool is meant to interact with directories and files on your computer, these are not available straight away to a Docker container running datatool. Hence, make sure to mount them before running a command, for instance
 ```bash
-docker run -v "$(pwd)/test-directory:/app/test-directory" rush <COMMAND> /app/test-directory
+docker run -v "$(pwd)/test-directory:/app/test-directory" datatool <COMMAND> /app/test-directory
 ```
 ## Command Categories
 
@@ -79,12 +79,12 @@ Get metadata about audio files (a single file or a directory).
 **Input**: Can be a single file or directory (recursive)
 
 ```bash
-rush audio summary <target>
+datatool audio summary <target>
 ```
 
 Example:
 ```bash
-rush audio summary music/
+datatool audio summary music/
 ```
 
 Output:
@@ -107,12 +107,12 @@ Split audio files into chunks of specified duration.
 **Input**: Can be a single file or directory (recursive)
 
 ```bash
-rush audio split <input> <chunk_duration> <output> [--delete-original]
+datatool audio split <input> <chunk_duration> <output> [--delete-original]
 ```
 
 Example:
 ```bash
-rush audio split long.wav 30 chunks/ --delete-original
+datatool audio split long.wav 30 chunks/ --delete-original
 ```
 
 This will split long.wav into 30-second chunks and save them in the `chunks/` directory. The original `long.wav` file will be deleted.
@@ -124,12 +124,12 @@ Change the sample rate of audio files.
 **Input**: Can be a single file or directory (recursive)
 
 ```bash
-rush audio resample <input> <sr> <output> [--overwrite]
+datatool audio resample <input> <sr> <output> [--overwrite]
 ```
 
 Example:
 ```bash
-rush audio resample input.wav 44100 output.wav
+datatool audio resample input.wav 44100 output.wav
 ```
 
 #### `audio trim`
@@ -139,12 +139,12 @@ Trim audio files to a specified length.
 **Input**: Can be a single file or directory (recursive)
 
 ```bash
-rush audio trim <input> <length> <output> [--offset <seconds>] [--overwrite]
+datatool audio trim <input> <length> <output> [--offset <seconds>] [--overwrite]
 ```
 
 Example:
 ```bash
-rush audio trim input.wav 60 output.wav --offset 30
+datatool audio trim input.wav 60 output.wav --offset 30
 ```
 
 ### Image Commands
@@ -156,12 +156,12 @@ Get metadata about image files.
 **Input**: Can be a single file or directory (recursive)
 
 ```bash
-rush image summary <target>
+datatool image summary <target>
 ```
 
 Example:
 ```bash
-rush image summary photos/
+datatool image summary photos/
 ```
 
 Output:
@@ -177,12 +177,12 @@ Resize images to specified dimensions.
 **Input**: Can be a single file or directory (recursive)
 
 ```bash
-rush image resize <input> <height> <width> <output> [--overwrite]
+datatool image resize <input> <height> <width> <output> [--overwrite]
 ```
 
 Example:
 ```bash
-rush image resize input.jpg 1080 1920 output.jpg
+datatool image resize input.jpg 1080 1920 output.jpg
 ```
 
 #### `image tessellate`
@@ -192,12 +192,12 @@ Split images into a grid of smaller images.
 **Input**: Can be a single file or directory (recursive)
 
 ```bash
-rush image tessellate <input> <n_vertical> <n_horizontal> <output> [--delete-original]
+datatool image tessellate <input> <n_vertical> <n_horizontal> <output> [--delete-original]
 ```
 
 Example:
 ```bash
-rush image tessellate photo.jpg 2 3 tiles/
+datatool image tessellate photo.jpg 2 3 tiles/
 ```
 
 This splits the image into a 2×3 grid (6 pieces).
@@ -211,12 +211,12 @@ Get metadata about video files.
 **Input**: Can be a single file or directory (recursive)
 
 ```bash
-rush video summary <target>
+datatool video summary <target>
 ```
 
 Example:
 ```bash
-rush video summary videos/
+datatool video summary videos/
 ```
 
 Output:
@@ -237,12 +237,12 @@ Count files and directories in a given path.
 **Input**: Can be a single file or directory (non-recursive, only immediate children)
 
 ```bash
-rush file count <target>
+datatool file count <target>
 ```
 
 Example:
 ```bash
-rush file count documents/
+datatool file count documents/
 ```
 
 Output:
@@ -260,12 +260,12 @@ Display the schema of a CSV or Parquet file.
 **Input**: Single file only (directories not supported)
 
 ```bash
-rush table schema <input>
+datatool table schema <input>
 ```
 
 Example:
 ```bash
-rush table schema data.csv
+datatool table schema data.csv
 ```
 
 Output:
