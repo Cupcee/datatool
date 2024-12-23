@@ -1,4 +1,5 @@
-use anyhow::Result;
+use anyhow::{Context, Error, Result};
+use itertools::Itertools;
 use rayon::prelude::*;
 use std::path::Path;
 
@@ -86,33 +87,56 @@ impl Stats {
 
 pub fn execute(args: PointcloudSummaryArgs) -> Result<()> {
     let paths = gather_pointcloud_paths(&args.input, args.recursive)?;
+    let unique_extensions: Vec<_> = paths
+        .iter()
+        .map(|path| format!("'{}'", extension(path)))
+        .unique()
+        .collect();
 
     if paths.is_empty() {
         eprintln!("No pointcloud files found at '{}'", args.input);
         return Ok(());
     }
+    let count_files_total = paths.len();
 
-    let final_stats = &paths
+    let read_files = paths
         .par_iter()
+        .filter_map(|path| {
+            // If reading the file fails, return None (skip it),
+            // otherwise return Some(buffer).
+            match read_pointcloud_file_to_buffer(path, args.dynamic_pcd_schema) {
+                Ok(buffer) => Some(buffer),
+                Err(err) => {
+                    eprintln!("Skipping file {} due to error: {}", path, err);
+                    None
+                }
+            }
+        })
+        .collect::<Vec<VectorBuffer>>();
+    let count_read_succesfully = read_files.len();
+    // Now fold over buffers that made it (skipping None).
+    let final_stats = read_files
+        .into_par_iter()
         .fold(
-            // fold each thread separately...
             || Stats::new(),
-            |mut acc, path| {
-                let buffer = read_pointcloud_file_to_buffer(path).unwrap();
+            |mut acc, buffer| {
                 acc.update(&buffer);
                 acc
             },
         )
         .reduce(
-            // ...and reduce threaded results into single result
             || Stats::new(),
             |mut a, b| {
                 a.merge(b);
                 a
             },
         );
-
-    println!("Number of files: {}", paths.len());
+    println!("Total number of files: {}", count_files_total);
+    println!(
+        "Failed to read: {} files",
+        count_files_total - count_read_succesfully
+    );
+    println!("Unique filetypes: {}", unique_extensions.join(", "));
     println!("Total number of points: {}", final_stats.total_points);
     if final_stats.total_points > 0 {
         println!("Bounding box:");
@@ -132,7 +156,7 @@ fn gather_pointcloud_paths(input: &str, recursive: bool) -> Result<Vec<String>> 
     if input_path.is_file() {
         let input_extension = &extension(&input);
         if is_supported_extension(input_extension) {
-            paths.push(input_extension.to_string());
+            paths.push(input_path.to_string_lossy().to_string());
         }
     } else if input_path.is_dir() {
         if recursive {

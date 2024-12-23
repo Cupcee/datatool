@@ -1,10 +1,17 @@
-use anyhow::{bail, Result};
+use anyhow::{bail, Context, Result};
 use bytemuck;
 use pasture_core::{
     containers::BorrowedBuffer, containers::BorrowedBufferExt, containers::BorrowedMutBuffer,
     containers::OwningBuffer, containers::VectorBuffer,
 };
+
+use pasture_core::layout::{
+    attributes::{COLOR_RGB, POSITION_3D},
+    PointLayout,
+};
+
 use pasture_io::base::read_all;
+use pcd_rs::DynReader;
 use pcd_rs::PcdDeserialize;
 use pcd_rs::Reader as PcdReader;
 use std::path::Path;
@@ -15,7 +22,7 @@ pub struct PcdPoint {
     pub x: f32,
     pub y: f32,
     pub z: f32,
-    pub rgb: u32,
+    pub rgb: f32,
 }
 
 /// Decode a float `rgb` value from PCD into (r, g, b) as (u8, u8, u8).
@@ -41,7 +48,10 @@ pub fn is_supported_extension(ext: &str) -> bool {
 }
 
 /// Read a single pointcloud file (.las/.laz or .pcd) into a VectorBuffer
-pub fn read_pointcloud_file_to_buffer(path: &str) -> Result<VectorBuffer> {
+pub fn read_pointcloud_file_to_buffer(
+    path: &str,
+    dynamic_pcd_schema: bool,
+) -> Result<VectorBuffer> {
     let ext = Path::new(path)
         .extension()
         .and_then(|e| e.to_str())
@@ -51,26 +61,60 @@ pub fn read_pointcloud_file_to_buffer(path: &str) -> Result<VectorBuffer> {
             let buffer = read_all::<VectorBuffer, _>(path)?;
             Ok(buffer)
         }
-        "pcd" => read_pcd_file(path),
+        "pcd" => {
+            if dynamic_pcd_schema {
+                read_dyn_pcd_file(path)
+            } else {
+                read_pcd_file(path)
+            }
+        }
         _ => bail!("Unsupported format: {}", path),
     }
 }
 
+/// Read a .pcd file without schema into a VectorBuffer with POSITION_3D
+/// Bails if unable to read the file.
+pub fn read_dyn_pcd_file(path: &str) -> Result<VectorBuffer> {
+    let reader = DynReader::open(path)?;
+    let points = reader.collect::<Result<Vec<_>, _>>()?;
+    if points.is_empty() {
+        bail!("No points found in the PCD file {}", path);
+    }
+
+    let mut layout = PointLayout::default();
+    layout.add_attribute(POSITION_3D, pasture_core::layout::FieldAlignment::Default);
+
+    let num_points = points.len();
+    let mut buffer = VectorBuffer::with_capacity(num_points, layout);
+    buffer.resize(num_points); // Allocate space for all points
+
+    let pos_attr = buffer
+        .point_layout()
+        .get_attribute(&POSITION_3D)
+        .unwrap()
+        .attribute_definition()
+        .clone();
+
+    for (i, p) in points.into_iter().enumerate() {
+        let xyz: [f32; 3] = p.to_xyz().context("Unable to find xyz in PCD schema.")?;
+        let pos_data = [xyz[0] as f64, xyz[1] as f64, xyz[2] as f64];
+
+        unsafe {
+            buffer.set_attribute(&pos_attr, i, bytemuck::cast_slice(&pos_data));
+        }
+    }
+
+    Ok(buffer)
+}
+
 /// Read a .pcd file into a VectorBuffer with POSITION_3D and COLOR_RGB
+/// Panics if unable to read the file.
 pub fn read_pcd_file(path: &str) -> Result<VectorBuffer> {
     let reader = PcdReader::open(path)?;
     let points: Vec<PcdPoint> = reader.collect::<Result<Vec<_>, _>>()?;
     if points.is_empty() {
         bail!("No points found in the PCD file {}", path);
     }
-
-    use pasture_core::{
-        containers::VectorBuffer,
-        layout::{
-            attributes::{COLOR_RGB, POSITION_3D},
-            PointLayout,
-        },
-    };
 
     let mut layout = PointLayout::default();
     layout.add_attribute(POSITION_3D, pasture_core::layout::FieldAlignment::Default);
@@ -94,7 +138,7 @@ pub fn read_pcd_file(path: &str) -> Result<VectorBuffer> {
         .clone();
 
     for (i, p) in points.into_iter().enumerate() {
-        let (r, g, b) = decode_rgb(p.rgb as f32);
+        let (r, g, b) = decode_rgb(p.rgb);
         let pos_data = [p.x as f64, p.y as f64, p.z as f64];
         let color_data = [r as u16, g as u16, b as u16];
 

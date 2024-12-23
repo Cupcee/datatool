@@ -123,11 +123,15 @@ fn main() {
         Command::Image(image_command) => match image_command.command {
             ImageSubCommand::Summary(args) => datatool::commands::image::summary::execute(args),
             ImageSubCommand::Resize(args) => datatool::commands::image::resize::execute(args),
-            ImageSubCommand::Tessellate(args) => datatool::commands::image::tessellate::execute(args),
+            ImageSubCommand::Tessellate(args) => {
+                datatool::commands::image::tessellate::execute(args)
+            }
             ImageSubCommand::ToLandscape(args) => {
                 datatool::commands::image::to_landscape::execute(args)
             }
-            ImageSubCommand::ToPortrait(args) => datatool::commands::image::to_portrait::execute(args),
+            ImageSubCommand::ToPortrait(args) => {
+                datatool::commands::image::to_portrait::execute(args)
+            }
         },
         Command::Video(video_command) => match video_command.command {
             VideoSubCommand::Summary(args) => datatool::commands::video::summary::execute(args),
@@ -137,7 +141,9 @@ fn main() {
         },
         Command::Table(table_command) => match table_command.command {
             TableSubCommand::Schema(args) => datatool::commands::table::schema::execute(args),
-            TableSubCommand::ToParquet(args) => datatool::commands::table::to_parquet::execute(args),
+            TableSubCommand::ToParquet(args) => {
+                datatool::commands::table::to_parquet::execute(args)
+            }
             TableSubCommand::ToCsv(args) => datatool::commands::table::to_csv::execute(args),
         },
         Command::Pointcloud(pointcloud_command) => match pointcloud_command.command {
@@ -146,7 +152,7 @@ fn main() {
             }
             PointcloudSubCommand::Convert(args) => {
                 datatool::commands::pointcloud::convert::execute(args)
-            } // Add more matches for additional pointcloud subcommands as implemented.
+            }
         },
     };
 

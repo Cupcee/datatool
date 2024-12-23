@@ -611,6 +611,7 @@ dependencies = [
  "hashbrown 0.15.2",
  "hound",
  "image",
+ "itertools 0.13.0",
  "lofty",
  "pasture-core",
  "pasture-io",

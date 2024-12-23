@@ -205,6 +205,11 @@ pub struct PointcloudSummaryArgs {
     /// If provided, recursively process directories
     #[clap(long)]
     pub recursive: bool,
+
+    /// Dynamic PCD schema. If false, the schema is expected to be precisely x, y, z,
+    /// rgb where all are F32. If true, we only try dynamically parsing xyz information.
+    #[clap(long)]
+    pub dynamic_pcd_schema: bool,
 }
 
 #[derive(Debug, Args)]
@@ -217,6 +222,11 @@ pub struct PointcloudConvertArgs {
     /// Optional output format hint (not needed if output extension is known)
     #[clap(long)]
     pub format: Option<String>,
+
+    /// Dynamic PCD schema. If false, the schema is expected to be precisely x, y, z,
+    /// rgb where all are F32. If true, we only try dynamically parsing xyz information.
+    #[clap(long)]
+    pub dynamic_pcd_schema: bool,
 }
 
 // Error handling utility that can be used by both lib and binary
