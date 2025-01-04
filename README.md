@@ -290,8 +290,12 @@ datatool pointcloud summary [--strict-pcd-schema] <target>
 Output:
 
 ```txt
-Number of files: 3
+Total number of files: 5
+Failed to read: 0 files
+Unique filetypes: 'las', 'laz', 'pcd'
 Total number of points: 639
+Mean number of points per file: 213.00
+Median number of points per file: 213.00
 Bounding box:
   X: [-0.9552599787712097, 0.9918500185012817]
   Y: [-0.3154599964618683, 0.3564099967479706]
