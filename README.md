@@ -1,10 +1,12 @@
 # datatool
 
-A Swiss-army knife CLI tool for data inspection and manipulation, written in Rust.
+Various operations for transforming and exploring data.
 
-__Note:__ Credit to original author/repo [rush](https://github.com/giacomopiccinini/rush)
-for creating the base structure. This fork plans to add additional data types
-as I encounter a need for them. Currently Pointcloud input is added on top.
+## Credit
+
+Credit to forked repo [rush](https://github.com/giacomopiccinini/rush) and its author
+for creating the base structure. This fork adds additional data types and functionality
+as I encounter a need for them, e.g. pointcloud data.
 
 ## Installation
 
