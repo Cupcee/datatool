@@ -8,19 +8,25 @@ use datatool::{
 
 /// Rust implementation of bash commands
 #[derive(Debug, Parser)]
-#[clap(name = "datatool", version)]
-pub struct App {
+#[clap(name = "datatool", version, author, about)]
+pub struct RootArgs {
     #[clap(subcommand)]
     command: Command,
 }
 
 #[derive(Debug, Subcommand)]
 enum Command {
+    /// Operations on audio data
     Audio(AudioCommand),
+    /// Operations on image data
     Image(ImageCommand),
+    /// Operations on video data
     Video(VideoCommand),
+    /// Operations on filesystem files
     File(FileCommand),
+    /// Operations on tabular data
     Table(TableCommand),
+    /// Operations on pointcloud data
     Pointcloud(PointcloudCommand), // New command category
 }
 
@@ -33,9 +39,13 @@ struct AudioCommand {
 
 #[derive(Debug, Subcommand)]
 enum AudioSubCommand {
+    /// Get metadata about audio files (a single file or a directory).
     Summary(AudioSummaryArgs),
+    /// Split audio files into chunks of specified duration.
     Split(AudioSplitArgs),
+    /// Change the sample rate of audio files.
     Resample(AudioResampleArgs),
+    /// Trim audio files to a specified length.
     Trim(AudioTrimArgs),
 }
 
@@ -48,8 +58,11 @@ struct ImageCommand {
 
 #[derive(Debug, Subcommand)]
 enum ImageSubCommand {
+    /// Get metadata about image files.
     Summary(ImageSummaryArgs),
+    /// Resize images to specified dimensions.
     Resize(ImageResizeArgs),
+    /// Split images into a grid of smaller images.
     Tessellate(ImageTessellateArgs),
     ToLandscape(ImageToLandscapeArgs),
     ToPortrait(ImageToPortraitArgs),
@@ -64,6 +77,7 @@ struct VideoCommand {
 
 #[derive(Debug, Subcommand)]
 enum VideoSubCommand {
+    /// Get metadata about video files.
     Summary(VideoSummaryArgs),
 }
 
@@ -76,6 +90,7 @@ struct FileCommand {
 
 #[derive(Debug, Subcommand)]
 enum FileSubCommand {
+    /// Count files and directories in a given path.
     Count(CountArgs),
 }
 
@@ -88,6 +103,7 @@ struct TableCommand {
 
 #[derive(Debug, Subcommand)]
 enum TableSubCommand {
+    /// Display the schema of a CSV or Parquet file.
     Schema(TableSchemaArgs),
     ToParquet(TableToParquetArgs),
     ToCsv(TableToCsvArgs),
@@ -102,18 +118,16 @@ struct PointcloudCommand {
 
 #[derive(Debug, Subcommand)]
 enum PointcloudSubCommand {
+    /// Summarize files in a given path.
     Summary(PointcloudSummaryArgs),
+    /// Convert pointcloud file from one format to another.
     Convert(PointcloudConvertArgs),
-    // You can add more subcommands here, e.g.:
-    // Downsample(PointcloudDownsampleArgs),
-    // Filter(PointcloudFilterArgs),
-    // etc.
 }
 
 fn main() {
-    let app = App::parse();
+    let args = RootArgs::parse();
 
-    let result = match app.command {
+    let result = match args.command {
         Command::Audio(audio_command) => match audio_command.command {
             AudioSubCommand::Summary(args) => datatool::commands::audio::summary::execute(args),
             AudioSubCommand::Split(args) => datatool::commands::audio::split::execute(args),

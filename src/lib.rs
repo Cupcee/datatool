@@ -200,6 +200,8 @@ pub struct TableToCsvArgs {
 #[derive(Debug, Args)]
 pub struct PointcloudSummaryArgs {
     /// Input file or directory
+    ///
+    /// Supported pointcloud formats: [LAS, LAZ, PCD]
     #[arg(required = true)]
     pub input: String,
 
@@ -207,7 +209,7 @@ pub struct PointcloudSummaryArgs {
     #[clap(long)]
     pub recursive: bool,
 
-    /// Strict PCD schema. If provided, the schema is expected to be precisely x, y, z,
+    /// Use strict schema for PCD files. If provided, the schema is expected to be precisely x, y, z,
     /// rgb where all are F32. Otherwise, we only try dynamically parsing xyz information.
     #[clap(long)]
     pub strict_pcd_schema: bool,
@@ -215,16 +217,16 @@ pub struct PointcloudSummaryArgs {
 
 #[derive(Debug, Args)]
 pub struct PointcloudConvertArgs {
-    /// Input pointcloud file (e.g. .las, .laz, .pcd)
+    /// Input pointcloud file
+    ///
+    /// Supported pointcloud formats: [PCD]
     #[arg(required = true)]
     pub input: String,
-    /// Output pointcloud file (e.g. .las, .pcd)
+    /// Output pointcloud file
+    ///
+    /// Supported pointcloud formats: [LAS, LAZ]
     #[arg(required = true)]
     pub output: String,
-
-    /// Optional output format hint (not needed if output extension is known)
-    #[clap(long)]
-    pub format: Option<String>,
 
     /// Strict PCD schema. If provided, the schema is expected to be precisely x, y, z,
     /// rgb where all are F32. Otherwise, we only try dynamically parsing xyz information.
