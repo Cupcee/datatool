@@ -4,8 +4,8 @@ version = "0.9.0"
 edition = "2021"
 repository = "https://github.com/cupcee/datatool"
 rust-version = "1.81"
-authors = ["Giacomo Piccinini <giacomo.piccinini@proton.me>", "Samuel Piirainen <samuel.piirainen@gmail.com>"]
-description = "Swiss-army knife for data inspection and manipulation"
+authors = ["Samuel Piirainen <samuel.piirainen@gmail.com>"]
+description = ""
 license = "MIT"
 
 [dependencies]

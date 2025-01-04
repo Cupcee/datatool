@@ -1,4 +1,4 @@
-use anyhow::{Context, Error, Result};
+use anyhow::Result;
 use itertools::Itertools;
 use rayon::prelude::*;
 use std::path::Path;
@@ -20,6 +20,7 @@ struct Stats {
     max_y: f64,
     min_z: f64,
     max_z: f64,
+    point_counts: Vec<u64>,
 }
 
 impl Stats {
@@ -32,12 +33,14 @@ impl Stats {
             max_y: f64::MIN,
             min_z: f64::MAX,
             max_z: f64::MIN,
+            point_counts: Vec::new(),
         }
     }
 
     fn update(&mut self, buffer: &VectorBuffer) {
         let num_points = buffer.len() as u64;
         self.total_points += num_points;
+        self.point_counts.push(num_points);
 
         let (buf_min_x, buf_max_x, buf_min_y, buf_max_y, buf_min_z, buf_max_z) =
             compute_bounds(buffer);
@@ -82,6 +85,29 @@ impl Stats {
         if other.max_z > self.max_z {
             self.max_z = other.max_z;
         }
+        self.point_counts.extend(other.point_counts);
+    }
+
+    fn calculate_mean(&self) -> f64 {
+        if self.point_counts.is_empty() {
+            0.0
+        } else {
+            self.total_points as f64 / self.point_counts.len() as f64
+        }
+    }
+
+    fn calculate_median(&mut self) -> f64 {
+        if self.point_counts.is_empty() {
+            0.0
+        } else {
+            self.point_counts.sort_unstable();
+            let mid = self.point_counts.len() / 2;
+            if self.point_counts.len() % 2 == 0 {
+                (self.point_counts[mid - 1] + self.point_counts[mid]) as f64 / 2.0
+            } else {
+                self.point_counts[mid] as f64
+            }
+        }
     }
 }
 
@@ -104,7 +130,7 @@ pub fn execute(args: PointcloudSummaryArgs) -> Result<()> {
         .filter_map(|path| {
             // If reading the file fails, return None (skip it),
             // otherwise return Some(buffer).
-            match read_pointcloud_file_to_buffer(path, args.dynamic_pcd_schema) {
+            match read_pointcloud_file_to_buffer(path, args.strict_pcd_schema) {
                 Ok(buffer) => Some(buffer),
                 Err(err) => {
                     eprintln!("Skipping file {} due to error: {}", path, err);
@@ -115,7 +141,7 @@ pub fn execute(args: PointcloudSummaryArgs) -> Result<()> {
         .collect::<Vec<VectorBuffer>>();
     let count_read_succesfully = read_files.len();
     // Now fold over buffers that made it (skipping None).
-    let final_stats = read_files
+    let mut final_stats = read_files
         .into_par_iter()
         .fold(
             || Stats::new(),
@@ -138,6 +164,14 @@ pub fn execute(args: PointcloudSummaryArgs) -> Result<()> {
     );
     println!("Unique filetypes: {}", unique_extensions.join(", "));
     println!("Total number of points: {}", final_stats.total_points);
+    println!(
+        "Mean number of points per file: {:.2}",
+        final_stats.calculate_mean()
+    );
+    println!(
+        "Median number of points per file: {:.2}",
+        final_stats.calculate_median()
+    );
     if final_stats.total_points > 0 {
         println!("Bounding box:");
         println!("  X: [{}, {}]", final_stats.min_x, final_stats.max_x);

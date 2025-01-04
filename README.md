@@ -276,9 +276,13 @@ Summarize files in a given path.
 
 __Supported Extensions__ `.pcd`, `.las`, `.laz`
 __Input__ Can be a single file or directory (non-recursive, only immediate children)
+__Args__
+    - `-d, --strict-pcd-schema`: If provided, the schema is expected to be precisely
+    `x`, `y`, `z`, `rgb` where all are F32. Otherwise, we only try dynamically
+    parsing `x`, `y`, `z` information.
 
 ```bash
-datatool pointcloud summary [--dynamic-pcd-schema] <target>
+datatool pointcloud summary [--strict-pcd-schema] <target>
 ```
 
 Output:
@@ -298,7 +302,26 @@ Convert pointcloud file from one format to another.
 
 __Supported inputs__ `.pcd` (single file)
 __Supported outputs__ `.laz`, `.las` (single file)
+__Args__
+    - `-d, --strict-pcd-schema`: If provided, the schema is expected to be precisely
+    `x`, `y`, `z`, `rgb` where all are F32. Otherwise, we only try dynamically
+    parsing `x`, `y`, `z` information.
 
 ```bash
-datatool pointcloud convert [--dynamic-pcd-schema] <input-file-path> <output-file-path>
+datatool pointcloud convert [--strict-pcd-schema] <input-file-path> <output-file-path>
+```
+
+#### TODO:`pointcloud harmonize`
+
+
+Given `n`, truncate pointclouds with too many points to `n`, and
+zero-pad too small pointclouds to `n`.
+
+__Supported Extensions__ `.pcd`, `.las`, `.laz`
+__Input__ Can be a single file or directory (non-recursive, only immediate children)
+__Args__
+    - `-n, --num-points`: (required) The target point count to harmonize to.
+
+```bash
+datatool pointcloud harmonize <input-file-or-dir-path> <output-file-or-dir-path> -n 2000
 ```

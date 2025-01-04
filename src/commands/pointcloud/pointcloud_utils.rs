@@ -48,10 +48,7 @@ pub fn is_supported_extension(ext: &str) -> bool {
 }
 
 /// Read a single pointcloud file (.las/.laz or .pcd) into a VectorBuffer
-pub fn read_pointcloud_file_to_buffer(
-    path: &str,
-    dynamic_pcd_schema: bool,
-) -> Result<VectorBuffer> {
+pub fn read_pointcloud_file_to_buffer(path: &str, strict_pcd_schema: bool) -> Result<VectorBuffer> {
     let ext = Path::new(path)
         .extension()
         .and_then(|e| e.to_str())
@@ -62,10 +59,10 @@ pub fn read_pointcloud_file_to_buffer(
             Ok(buffer)
         }
         "pcd" => {
-            if dynamic_pcd_schema {
-                read_dyn_pcd_file(path)
-            } else {
+            if strict_pcd_schema {
                 read_pcd_file(path)
+            } else {
+                read_dyn_pcd_file(path)
             }
         }
         _ => bail!("Unsupported format: {}", path),
